@@ -1,0 +1,129 @@
+body{
+	margin:0;
+	font-family: "Source Code Pro", Monaco, monospace;
+}
+
+.header-area {
+	background-color:gray;
+	padding: 10px 0;
+	height: 50px;
+	}
+	
+.Home {
+	background-color:#6CFFFF;
+	height: 50px;
+	width: 20%;
+	text-align: center;
+	float:left;
+	font-size: 30px;
+
+	}
+	
+.Coverage_2G {
+	background-color:#6CFFFF;
+	height: 50px;
+	width: 20%;
+	text-align: center;
+	float:left;
+	overflow: hidden;
+	font-size: 30px;
+	}
+
+.Coverage_3G {
+	background-color: #6CFFFF;
+	height: 50px;
+	width: 20%;
+	text-align: center;
+	float:left;
+	overflow: hidden;
+	font-size: 30px;	
+	}	
+
+.Fiber_network {
+	background-color: #6CFFFF;
+	height: 50px;
+	width: 20%;
+	text-align: center;
+	float:left;
+	overflow: hidden;
+	font-size: 30px;	
+	}	
+
+
+.Organogram {
+	background-color: #6CFFFF;
+	height: 50px;
+	width: 20%;
+	text-align: center;
+	float:left;
+	overflow: hidden;
+	font-size: 30px;	
+	}	
+	
+	
+.main-area {
+	min-height: 550px;
+
+}
+
+h1{
+	color: #f95f00;
+	text-align: center;
+}
+	
+.footer-area {
+	background-color: #B4B4FF;
+	height: 30px;
+	text-align: center;
+	}
+.header-area a {
+	padding-top: 5px;
+	display: block;
+	color: #f95f00;
+}
+	a {
+		text-decoration: none;
+		color: #f95f00;
+	}
+	a:hover {
+		color: #000;
+	}
+
+.main-left-navigation {
+	width: 20%;
+	float: left;
+}
+.main-left-navigation li {
+	margin-bottom: 20px;
+}
+
+.content {
+	width: 75%;
+	float: right;
+}
+
+.main-left-navigation {
+	font-size: 20px;
+	color: #f95f00;
+	font-weight: bold;
+	margin-top: 0;
+}
+a.active {
+	color: #000;
+}
+label {
+	display: inline-block;
+	width: 200px;
+}
+
+select {
+	margin-left: -9px;
+}
+
+.field {
+	margin-bottom: 10px;
+}
+
+.button {
+	margin-left: 200px;
+}
