@@ -73,25 +73,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $line++;
                         }
                         fclose($handle);
+                        //print_r($out);
 
                         if (!empty($keys) && !empty($out)) {
-                            $truncate_sql = "TRUNCATE TABLE neighbors";
-                            $truncated = mysqli_query($conn, $truncate_sql);
+
 
                             foreach ($out as $row) {
 
-                                $sql = "select * from neighbors where sector = '" . $row[0] . "'";
-                                $base_sector = $conn->query($sql)->fetch_assoc();
-                                $sql = "select * from neighbors where sector != '" . $base_sector['sector'] . "'";
+                                $sql = "select * from neighbors where serving_cell = '" . $row[0] . "'";
                                 $result = mysqli_query($conn, $sql);
 
 
+
                                 if (mysqli_num_rows($result) > 0) {
+
                                     $index = 1;
                                     $distances = array();
                                     while($neighbor_sector = mysqli_fetch_assoc($result)) {
 
-                                        $absolute_relative_angle = abs($neighbor_sector);
+
+                                        $absolute_relative_angle = abs($base_sector['relative_angle']);
                                         if($absolute_relative_angle <= 60) {
                                             $group = 1;
                                         }
@@ -104,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             $group = 3;
                                         }
 
-                                        $sectors[$neighbor_sector['sector']] = array('distance' => $distance, 'angle' => $angle, 'relative_angle' => $relative_angle);
+                                        $sectors[$neighbor_sector['serving_cell']] = array('group'=>$group, 'distance' => $distance, 'angle' => $angle, 'relative_angle' => $relative_angle);
                                         $index++;
                                     }
                                     asort($sectors);
@@ -127,14 +128,14 @@ c.	Adjacent with o distance, cost=5000
                                     $rank = 1;
                                     array_slice($sectors, 0, 9);
                                     foreach ($sectors as $key => $neighbor_sector) {
-                                        $sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, created_at, updated_at)
+                                        /*$sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, created_at, updated_at)
                                         VALUES ('" . $base_sector['sector']. "','" . $key . "','" . $neighbor_sector['distance'] . "','" . $neighbor_sector['angle'] . "','" . $neighbor_sector['relative_angle'] . "','" . $rank . "','" . date("Y-m-d H:i:s") . "','" . date("Y-m-d H:i:s") . "')";
                                         if ($conn->query($sql) === TRUE) {
                                             echo "New record created successfully for " . $base_sector['sector'] . "<br>";
                                         } else {
                                             echo "Error: " . $sql . "<br>" . $conn->error;
                                         }
-                                        $rank++;
+                                        $rank++;*/
                                     }
                                 }
                             }
