@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         $distance=haversineGreatCircleDistance($base_sector['latitude'],$base_sector['longitude'],$neighbor_sector['latitude'],$neighbor_sector['longitude']);
                                         $angle=bearing($base_sector['latitude'],$base_sector['longitude'],$neighbor_sector['latitude'],$neighbor_sector['longitude']);
                                         $relative_angle=($angle-$base_sector['azimuth']);
-                                        $absolute_relative_angle = abs($relative_angle);
+                                        /*$absolute_relative_angle = abs($relative_angle);
                                         if($absolute_relative_angle <= 60) { $group = 1; }
                                         elseif ($absolute_relative_angle <= 120) { $group = 2; }
                                         else { $group = 3; }
@@ -107,33 +107,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             if ( $group == 1 ) { $cost = 500/$distance; }
                                             elseif ( $group == 2 ) { $cost = 300/$distance; }
                                             else { $cost = 200/$distance; }
-                                        }
+                                        }*/
 
 
 
-                                        $sectors[$neighbor_sector['sector']] = array('distance' => $distance, 'angle' => $angle, 'relative_angle' => $relative_angle);
+                                        $sectors[$neighbor_sector['sector']] = array('distance' => $distance, 'angle' => $angle, 'relative_angle' => $relative_angle,'bcch' => $neighbor_sector['bcch'],'tch1' => $neighbor_sector['tch1'],);
                                         $index++;
                                     }
                                     asort($sectors);
 
-                                    /*1.	Plan neighbors: Count-30
-2.	Group them with reference angle: 0 to +-60 degree-Front, +-60 to +-120 degree-side, rest-back
-3.	Rank them as per distance for 3 groups
-4.	Calculate cost for each frequency in a cell
-a.	Co with 0 distance, cost=10000
-b.	Co with other neighbors, cost for front= 500/distance, cost for side=300/distance, cost for back=200/distance
-c.	Adjacent with o distance, cost=5000
-5.	Rank Frequencies with ascending order of cost
-6.	Pick required no of frequencies and make final assignment*/
-
-
-
-
                                     $rank = 1;
                                     array_slice($sectors, 0, 9);
                                     foreach ($sectors as $key => $neighbor_sector) {
-                                        $sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, created_at, updated_at)
-                                        VALUES ('" . $base_sector['sector']. "','" . $key . "','" . $neighbor_sector['distance'] . "','" . $neighbor_sector['angle'] . "','" . $neighbor_sector['relative_angle'] . "','" . $rank . "','" . date("Y-m-d H:i:s") . "','" . date("Y-m-d H:i:s") . "')";
+                                        $sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, neighbor_bcch, neighbor_tch1, created_at, updated_at)
+                                        VALUES ('" . $base_sector['sector']. "','" . $key . "','" . $neighbor_sector['distance'] . "','" . $neighbor_sector['angle'] . "','" . $neighbor_sector['relative_angle'] . "','" . $rank . "','" . $neighbor_sector['bcch'] . "','" . $neighbor_sector['tch1'] . "','" . date("Y-m-d H:i:s") . "','" . date("Y-m-d H:i:s") . "')";
                                         if ($conn->query($sql) === TRUE) {
                                             echo "New record created successfully for " . $base_sector['sector'] . "<br>";
                                         } else {

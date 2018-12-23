@@ -76,23 +76,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         //print_r($out);
 
                         if (!empty($keys) && !empty($out)) {
-
-
-                            foreach ($out as $row) {
-
+                            foreach ($out as $key => $row) {
                                 $sql = "select * from neighbors where serving_cell = '" . $row[0] . "'";
                                 $result = mysqli_query($conn, $sql);
 
-
-
                                 if (mysqli_num_rows($result) > 0) {
-
                                     $index = 1;
-                                    $distances = array();
+                                    $sectors = array();
                                     while($neighbor_sector = mysqli_fetch_assoc($result)) {
-
-
-                                        $absolute_relative_angle = abs($base_sector['relative_angle']);
+                                        $absolute_relative_angle = abs($neighbor_sector['relative_angle']);
                                         if($absolute_relative_angle <= 60) {
                                             $group = 1;
                                         }
@@ -104,64 +96,98 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         {
                                             $group = 3;
                                         }
-
-                                        $sectors[$neighbor_sector['serving_cell']] = array('group'=>$group, 'distance' => $neighbor_sector['distance'], 'angle' => $neighbor_sector['angle'], 'relative_angle' => $neighbor_sector['relative_angle']);
+                                        $sectors[$index] = array('group'=>$group, 'neighbor_sector_id' => $neighbor_sector['neighbor_cell'], 'distance' => $neighbor_sector['distance'], 'angle' => $neighbor_sector['angle'], 'relative_angle' => $neighbor_sector['relative_angle'],'neighbor_bcch' => $neighbor_sector['neighbor_bcch'],'neighbor_tch1' => $neighbor_sector['neighbor_tch1'] );
                                         $index++;
                                     }
-                                    asort($sectors);
-
-                                    echo '<pre>';
-                                    print_r($sectors);
-                                    echo '</pre>';
-
-                                    /*1.	Plan neighbors: Count-30
-2.	Group them with reference angle: 0 to +-60 degree-Front, +-60 to +-120 degree-side, rest-back
-3.	Rank them as per distance for 3 groups
-4.	Calculate cost for each frequency in a cell
-For first cell of planning list:
-For (freq=1; freq<25; freq++;)
-{
-For (neigh=1; neighbor<31; neighbor++)
-	{
-If (neigh_freq=freq&distance=0)
-{cost=100000};
-Else if ((neigh_freq+1=freq or neigh_freq-1=freq)&distance=0)
- {cost=50000};
-Else if (neigh_freq=freq&distance>0)
-	{
-If group=front, cost=500/distance;
-Else if group=side, cost=300/distance;
-Else cost=200/distance;
-}
-	Else cost=0;
-
-}
-
-}
-5.	Rank Frequencies with ascending order of cost
-6.	Pick required no of frequencies and make final assignment*/
-
-
-
-
-
-
-
-
-                                    $rank = 1;
-                                    array_slice($sectors, 0, 9);
-                                    foreach ($sectors as $key => $neighbor_sector) {
-                                        /*$sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, created_at, updated_at)
-                                        VALUES ('" . $base_sector['sector']. "','" . $key . "','" . $neighbor_sector['distance'] . "','" . $neighbor_sector['angle'] . "','" . $neighbor_sector['relative_angle'] . "','" . $rank . "','" . date("Y-m-d H:i:s") . "','" . date("Y-m-d H:i:s") . "')";
-                                        if ($conn->query($sql) === TRUE) {
-                                            echo "New record created successfully for " . $base_sector['sector'] . "<br>";
-                                        } else {
-                                            echo "Error: " . $sql . "<br>" . $conn->error;
-                                        }
-                                        $rank++;*/
-                                    }
                                 }
+                                asort($sectors);
+                               /* echo '<pre>';
+                                print_r($sectors);
+                                echo '</pre>';
+                                die();*/
+
+                                //$base_sector['neighbors'] = $sectors;
+                                $cost = array();
+                                $base_sector = array('base_sector_id' => $row[0], 'neighbors' => $sectors );
+                                for ( $freq=1; $freq<=25; $freq++)
+                                {
+                                    $cost[$freq]=0;
+
+                                    foreach ($base_sector['neighbors'] as $neighbor) {
+                                        //$cost_for_neighbor=0;
+                                        $cost_for_neighbor=rand(10,100);
+
+                                        /*if(($neighbor['neighbor_bcch']==$freq) && ($neighbor['distance'] == 0)) {
+                                            $cost_for_neighbor=100000;
+                                            //echo '100000';
+                                        }
+                                        elseif((($neighbor['neighbor_bcch']+1 == $freq) || ($neighbor['neighbor_bcch']-1 == $freq)) && $neighbor['distance'] == 0) {
+                                             $cost_for_neighbor=50000;
+                                             //echo '50000';
+                                         }
+                                        elseif(($neighbor['neighbor_bcch'] == $freq) && ($neighbor['distance'] > 0))
+                                        {
+                                            if ($neighbor['group'] == 1) {
+                                                $cost_for_neighbor= (500/$neighbor['distance']);
+                                            }
+                                            elseif ($neighbor['group'] == 2) {
+                                                $cost_for_neighbor = (300/$neighbor['distance']);
+                                            }
+                                            else {
+                                                $cost_for_neighbor = (200/$neighbor['distance']);
+
+                                            }
+                                            //echo $cost_for_neighbor;
+                                        }*/
+                                        $cost[$freq] = $cost[$freq]+$cost_for_neighbor;
+                                        /*echo '<pre>';
+                                        print_r($cost[$freq]);
+                                        echo '</pre>';*/
+                                    }
+
+
+                                }
+                                asort($cost);
+                                /*echo '<pre>';
+                                print_r($cost);
+                                echo '</pre>';*/
+
+
+
+                                reset($cost);
+                                $first_key = key($cost);
+                                $lowest_costs = array_slice($cost, 0, 3,true);
+                                /*echo '<pre>';
+                                print_r($lowest_costs);
+                                echo '</pre>';*/
+
+                                $keys = array_keys($lowest_costs);
+                                $third_key = $keys[2];
+
+                                /*echo '<pre>';
+                                print_r($third_key);
+                                echo '</pre>';*/
+
+                                $sql = "UPDATE neighbors SET neighbor_bcch = '".$first_key."', neighbor_tch1 = '".$third_key."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE serving_cell = '".$base_sector['base_sector_id']."'";
+                                if ($conn->query($sql) === TRUE) {
+                                    echo "Record Updated successfully";
+                                } else {
+                                    echo "Error: " . $sql . "<br>" . $conn->error;
+                                }
+
+
+
+                                /*echo '<pre>';
+                                //print_r(count($base_sector));
+                                print_r($base_sector);
+                                echo '</pre>';
+                                echo '...........................<br>';*/
+                               // die();
                             }
+
+
+
+
                         }
                     }
                 }
