@@ -105,24 +105,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             $group = 3;
                                         }
 
-                                        $sectors[$neighbor_sector['serving_cell']] = array('group'=>$group, 'distance' => $distance, 'angle' => $angle, 'relative_angle' => $relative_angle);
+                                        $sectors[$neighbor_sector['serving_cell']] = array('group'=>$group, 'distance' => $neighbor_sector['distance'], 'angle' => $neighbor_sector['angle'], 'relative_angle' => $neighbor_sector['relative_angle']);
                                         $index++;
                                     }
                                     asort($sectors);
+
+                                    echo '<pre>';
+                                    print_r($sectors);
+                                    echo '</pre>';
 
                                     /*1.	Plan neighbors: Count-30
 2.	Group them with reference angle: 0 to +-60 degree-Front, +-60 to +-120 degree-side, rest-back
 3.	Rank them as per distance for 3 groups
 4.	Calculate cost for each frequency in a cell
-a.	Co with 0 distance, cost=10000
-b.	Co with other neighbors, cost for front= 500/distance, cost for side=300/distance, cost for back=200/distance
-c.	Adjacent with o distance, cost=5000
+For first cell of planning list:
+For (freq=1; freq<25; freq++;)
+{
+For (neigh=1; neighbor<31; neighbor++)
+	{
+If (neigh_freq=freq&distance=0)
+{cost=100000};
+Else if ((neigh_freq+1=freq or neigh_freq-1=freq)&distance=0)
+ {cost=50000};
+Else if (neigh_freq=freq&distance>0)
+	{
+If group=front, cost=500/distance;
+Else if group=side, cost=300/distance;
+Else cost=200/distance;
+}
+	Else cost=0;
+
+}
+
+}
 5.	Rank Frequencies with ascending order of cost
 6.	Pick required no of frequencies and make final assignment*/
 
-                                    echo '<pre>';
-                                    print_r($sectors);
-                                    echo '</pre>';
+
+
+
+
+
 
 
                                     $rank = 1;
