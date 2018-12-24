@@ -115,15 +115,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                                     foreach ($base_sector['neighbors'] as $neighbor) {
                                         //$cost_for_neighbor=0;
-                                        $cost_for_neighbor=rand(10,100);
+                                        //$cost_for_neighbor=rand(10,100);
 
-                                        /*if(($neighbor['neighbor_bcch']==$freq) && ($neighbor['distance'] == 0)) {
+                                        if(($neighbor['neighbor_bcch']==$freq) && ($neighbor['distance'] == 0)) {
                                             $cost_for_neighbor=100000;
-                                            //echo '100000';
+                                           // echo '100000';
                                         }
                                         elseif((($neighbor['neighbor_bcch']+1 == $freq) || ($neighbor['neighbor_bcch']-1 == $freq)) && $neighbor['distance'] == 0) {
                                              $cost_for_neighbor=50000;
-                                             //echo '50000';
+                                            //echo '50000';
                                          }
                                         elseif(($neighbor['neighbor_bcch'] == $freq) && ($neighbor['distance'] > 0))
                                         {
@@ -135,10 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             }
                                             else {
                                                 $cost_for_neighbor = (200/$neighbor['distance']);
-
                                             }
                                             //echo $cost_for_neighbor;
-                                        }*/
+                                        }
                                         $cost[$freq] = $cost[$freq]+$cost_for_neighbor;
                                         /*echo '<pre>';
                                         print_r($cost[$freq]);
@@ -157,18 +156,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 reset($cost);
                                 $first_key = key($cost);
                                 $lowest_costs = array_slice($cost, 0, 3,true);
-                                /*echo '<pre>';
+                                echo '<pre>';
                                 print_r($lowest_costs);
-                                echo '</pre>';*/
+                                echo '</pre>';
 
                                 $keys = array_keys($lowest_costs);
+                                $second_key = $keys[1];
                                 $third_key = $keys[2];
 
+                                if($second_key==$first_key+1) {
+                                    $bcch_frequency = $third_key;
+                                }
+                                else {
+                                    $bcch_frequency = $second_key;
+                                }
                                 /*echo '<pre>';
                                 print_r($third_key);
                                 echo '</pre>';*/
 
-                                $sql = "UPDATE neighbors SET neighbor_bcch = '".$first_key."', neighbor_tch1 = '".$third_key."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE serving_cell = '".$base_sector['base_sector_id']."'";
+                                $sql = "UPDATE neighbors SET neighbor_bcch = '".$first_key."', neighbor_tch1 = '".$bcch_frequency."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE serving_cell = '".$base_sector['base_sector_id']."'";
                                 if ($conn->query($sql) === TRUE) {
                                     echo "Record Updated successfully";
                                 } else {
