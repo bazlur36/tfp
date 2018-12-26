@@ -29,7 +29,6 @@
 <?php
 include 'connection.php';
 
-
 $message = null;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -174,12 +173,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 print_r($third_key);
                                 echo '</pre>';*/
 
-                                $sql = "UPDATE neighbors SET neighbor_bcch = '".$first_key."', neighbor_tch1 = '".$bcch_frequency."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE serving_cell = '".$base_sector['base_sector_id']."'";
+                                $sql = "UPDATE neighbors SET neighbor_bcch = '".$first_key."', neighbor_tch1 = '".$bcch_frequency."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE neighbor_cell = '".$base_sector['base_sector_id']."'";
                                 if ($conn->query($sql) === TRUE) {
                                     echo "Record Updated successfully";
                                 } else {
                                     echo "Error: " . $sql . "<br>" . $conn->error;
                                 }
+
+                                $sql = "UPDATE neighbors SET serving_bcch = '".$first_key."', serving_tch1 = '".$bcch_frequency."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE serving_cell = '".$base_sector['base_sector_id']."'";
+                                if ($conn->query($sql) === TRUE) {
+                                    echo "Record Updated successfully";
+                                } else {
+                                    echo "Error: " . $sql . "<br>" . $conn->error;
+                                }
+
 
 
 
@@ -203,6 +210,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $message = '<span class="red">There was a problem with your file</span>';
         }
+    }
+    $sql = "SELECT distinct serving_cell, neighbor_bcch, neighbor_tch1 from  neighbors";
+    $current_neighbors = mysqli_query($conn, $sql);
+}
+
+
+$sql = "SELECT distinct(serving_cell), serving_bcch, serving_tch1 from  neighbors";
+$current_neighbors = mysqli_query($conn, $sql);
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if($_GET["_method"]=='put') {
+        $sql = "SELECT distinct(serving_cell), serving_bcch, serving_tch1 from  neighbors";
+        $current_neighbors = mysqli_query($conn, $sql);
+
+        if (mysqli_num_rows($current_neighbors) > 0) {
+            while($row = mysqli_fetch_assoc($current_neighbors)) {
+                $sql = "UPDATE sectors SET bcch = '".$row['serving_bcch']."', tch1 = '".$row['serving_tch1']."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE sector = '".$row['serving_cell']."'";
+                if ($conn->query($sql) === TRUE) {
+                    echo "Record Updated successfully";
+                } else {
+                    echo "Error: " . $sql . "<br>" . $conn->error;
+                }
+            }
+        } else {
+            echo "0 results";
+        }
+
     }
 }
 
@@ -267,7 +302,6 @@ function bearing($lat1, $long1, $lat2, $long2) {
         </li>
     </ul>
     <div class="content">
-        <?php echo $message; ?>
         <form method="post" action="" enctype="multipart/form-data">
             <div class="field"><label>Cells</label><input name="file" type="file"></div>
 
@@ -278,7 +312,41 @@ function bearing($lat1, $long1, $lat2, $long2) {
                 </select>
             </div>
             <div class="field">
-                <button class="button" type="submit" value="PLAN">PLAN</button>
+                <button class="button" type="submit" value="IMPORT">IMPORT</button>
+            </div>
+        </form>
+
+        <table cellpadding="5"; style="text-align: center">
+            <tr>
+                <th>Serial</th>
+                <th>Serving Cell</th>
+                <th>TCH1</th>
+                <th>BCCH</th>
+            </tr>
+            <?php
+            if (mysqli_num_rows($current_neighbors) > 0) {
+                $count = 1;
+                while($row = mysqli_fetch_assoc($current_neighbors)) {
+                    ?><tr>
+                    <td><?php echo $count ?></td>
+                    <td><?php echo $row["serving_cell"]; ?></td>
+                    <td><?php echo $row["serving_bcch"]; ?></td>
+                    <td><?php echo $row["serving_tch1"]; ?></td>
+                    </tr>
+                    <?php
+                    $count++;
+                }
+            } else {
+                echo "0 results";
+            }
+
+            mysqli_close($conn);
+            ?>
+        </table>
+        <form method="GET" action="">
+            <input type="hidden" name="_method" value="put" />
+            <div class="field">
+                <button class="button" type="submit" value="PLAN">ASSIGN</button>
             </div>
         </form>
     </div>

@@ -119,8 +119,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     $rank = 1;
                                     array_slice($sectors, 0, 9);
                                     foreach ($sectors as $key => $neighbor_sector) {
-                                        $sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, neighbor_bcch, neighbor_tch1, created_at, updated_at)
-                                        VALUES ('" . $base_sector['sector']. "','" . $key . "','" . $neighbor_sector['distance'] . "','" . $neighbor_sector['angle'] . "','" . $neighbor_sector['relative_angle'] . "','" . $rank . "','" . $neighbor_sector['bcch'] . "','" . $neighbor_sector['tch1'] . "','" . date("Y-m-d H:i:s") . "','" . date("Y-m-d H:i:s") . "')";
+                                        $sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, serving_bcch, serving_tch1,neighbor_bcch, neighbor_tch1, created_at, updated_at)
+                                        VALUES ('" . $base_sector['sector']. "','" . $key . "','" . $neighbor_sector['distance'] . "','" . $neighbor_sector['angle'] . "','" . $neighbor_sector['relative_angle'] . "','" . $rank . "','" . $base_sector['bcch'] . "','" . $base_sector['tch1'] . "','" . $neighbor_sector['bcch'] . "','" . $neighbor_sector['tch1'] . "','" . date("Y-m-d H:i:s") . "','" . date("Y-m-d H:i:s") . "')";
                                         if ($conn->query($sql) === TRUE) {
                                             echo "New record created successfully for " . $base_sector['sector'] . "<br>";
                                         } else {
