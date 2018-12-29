@@ -139,13 +139,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 //echo $_GET['page'].'.....';
-$lower_limit = ($_GET['page'] - 1) * 20;
+$lower_limit = ($_GET['page'] - 1) * 21;
 $lower_limit = $lower_limit <= 0 ? 0 : $lower_limit;
 
 $sql_for_all_sectors = "SELECT * from sectors";
 $all_sectors = mysqli_query($conn, $sql_for_all_sectors);
 
-$sql = "SELECT * from sectors order by sector  ASC limit " . $lower_limit . ",20";
+$sql = "SELECT * from sectors order by sector  ASC limit " . $lower_limit . ",21";
 //echo $sql;
 $sectors = mysqli_query($conn, $sql);
 
@@ -211,7 +211,7 @@ $sectors = mysqli_query($conn, $sql);
 
                 <?php
                 $total_items = mysqli_num_rows($all_sectors);
-                $total_pages = intval(mysqli_num_rows($all_sectors) / 20);
+                $total_pages = intval(mysqli_num_rows($all_sectors) / 21);
                 //echo $total_items.'....'.$total_pages;
                 ?>
                 <tr>

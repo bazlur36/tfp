@@ -81,34 +81,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         $distance=haversineGreatCircleDistance($base_sector['latitude'],$base_sector['longitude'],$neighbor_sector['latitude'],$neighbor_sector['longitude']);
                                         $angle=bearing($base_sector['latitude'],$base_sector['longitude'],$neighbor_sector['latitude'],$neighbor_sector['longitude']);
                                         $relative_angle=($angle-$base_sector['azimuth']);
-                                        /*$absolute_relative_angle = abs($relative_angle);
-                                        if($absolute_relative_angle <= 60) { $group = 1; }
-                                        elseif ($absolute_relative_angle <= 120) { $group = 2; }
-                                        else { $group = 3; }
-
-                                        if( $distance == 0  ) {
-                                            $cost = 10000;
-                                        }
-                                        else {
-                                            if ( $group == 1 ) { $cost = 500/$distance; }
-                                            elseif ( $group == 2 ) { $cost = 300/$distance; }
-                                            else { $cost = 200/$distance; }
-                                        }*/
-
-
-
                                         $sectors[$neighbor_sector['sector']] = array('distance' => $distance, 'angle' => $angle, 'relative_angle' => $relative_angle,'bcch' => $neighbor_sector['bcch'],'tch1' => $neighbor_sector['tch1'],);
                                         $index++;
                                     }
                                     asort($sectors);
 
                                     $rank = 1;
-                                    array_slice($sectors, 0, 9);
-                                    foreach ($sectors as $key => $neighbor_sector) {
+                                    $sliced_sectors = array_slice($sectors, 0, 20);
+                                   /* echo '<pre>';
+                                    print_r(count($sliced_sectors));
+                                    echo '</pre>';
+                                    die();*/
+
+                                    foreach ($sliced_sectors as $key => $neighbor_sector) {
                                         $sql = "INSERT INTO neighbors (serving_cell, neighbor_cell, distance, angle, relative_angle,  rank, serving_bcch, serving_tch1,neighbor_bcch, neighbor_tch1, created_at, updated_at)
                                         VALUES ('" . $base_sector['sector']. "','" . $key . "','" . $neighbor_sector['distance'] . "','" . $neighbor_sector['angle'] . "','" . $neighbor_sector['relative_angle'] . "','" . $rank . "','" . $base_sector['bcch'] . "','" . $base_sector['tch1'] . "','" . $neighbor_sector['bcch'] . "','" . $neighbor_sector['tch1'] . "','" . date("Y-m-d H:i:s") . "','" . date("Y-m-d H:i:s") . "')";
                                         if ($conn->query($sql) === TRUE) {
-                                            echo "New record created successfully for " . $base_sector['sector'] . "<br>";
+                                            //echo "New record created successfully for " . $base_sector['sector'] . "<br>";
                                         } else {
                                             echo "Error: " . $sql . "<br>" . $conn->error;
                                         }
@@ -127,6 +116,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
+$lower_limit = ($_GET['page'] - 1) * 21;
+$lower_limit = $lower_limit <= 0 ? 0 : $lower_limit;
+
+$sql_for_all_neighbors = "SELECT * from neighbors";
+$all_neighbors = mysqli_query($conn, $sql_for_all_neighbors);
+//print_r($all_neighbors);
+$sql = "SELECT * from neighbors order by serving_cell  ASC, neighbor_cell asc, distance asc  limit " . $lower_limit . ",21";
+//echo $sql;
+$neighbors = mysqli_query($conn, $sql);
+
+
 
 function haversineGreatCircleDistance(
     $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000)
@@ -169,19 +170,14 @@ function bearing($lat1, $long1, $lat2, $long2) {
 
     <ul class="main-left-navigation">
         <li>
-            <a class="active" href="neighbor-planning.php">Neighbor Planning</a>
+            <a href="master.php">Update Master DB</a>
+        </li>
+        <li>
+            <a class="active"  href="neighbor-planning.php">Neighbor Planning</a>
         </li>
         <li>
             <a href="frequency-planning.php">Frequency Planning</a>
         </li>
-
-        <li>
-            <a  href="psi-planning.php">PSI Planning</a>
-        </li>
-        <li>
-            <a href="master.php">Update Master DB</a>
-        </li>
-
         <li>
             <a href="bsic-planning.php">BSIC Planning</a>
         </li>
@@ -190,17 +186,68 @@ function bearing($lat1, $long1, $lat2, $long2) {
         <?php echo $message; ?>
         <form method="post" action="" enctype="multipart/form-data">
             <div class="field"><label>Cells</label><input name="file" type="file"></div>
-
-            <div class="field"><label>Assignment</label>
-                <select>
-                    <option>SSH</option>
-                    <option>Random</option>
-                </select>
-            </div>
             <div class="field">
                 <button class="button" type="submit" value="PLAN">PLAN</button>
             </div>
         </form>
+        <table cellpadding="5" ; border="1" style="text-align: center">
+            <tr>
+                <th>#</th>
+                <th>Serving Cell</th>
+                <th>Neighbor Cell</th>
+                <th>Distance</th>
+                <th>Angle</th>
+                <th>Relative Angle</th>
+                <th>Last Updated</th>
+            </tr>
+            <?php
+            if (mysqli_num_rows($neighbors ) > 0) {
+                $count = 1;
+                while ($row = mysqli_fetch_assoc($neighbors)) {
+                    ?>
+                    <tr>
+                        <td><?php echo $row['id'] ?></td>
+                        <td><?php echo $row['serving_cell'] ?></td>
+                        <td><?php echo $row['neighbor_cell'] ?></td>
+                        <td><?php echo $row['distance'] ?></td>
+                        <td><?php echo $row['angle'] ?></td>
+                        <td><?php echo $row['relative_angle'] ?></td>
+                        <td><?php echo $row['updated_at'] ?></td>
+                    </tr>
+                    <?php
+                    $count++;
+                }
+
+                ?>
+
+                <?php
+
+                $total_items = mysqli_num_rows($all_neighbors);
+                $total_pages = intval(mysqli_num_rows($all_neighbors) / 21);
+                //echo $total_items.'....'.$total_pages;
+                ?>
+                <tr>
+                    <td colspan="7">
+                        <?php
+                        for ($page = 0; $page <= $total_pages; $page++) {
+                            ?>
+                            <a style="font-weight: bold"
+                               href="neighbor-planning.php?page=<?php echo $page + 1; ?>"><?php echo $page + 1; ?></a>
+                            <?php
+                        }
+                        ?>
+
+                    </td>
+                </tr>
+
+                <?php
+            } else {
+                echo "0 results";
+            }
+
+            mysqli_close($conn);
+            ?>
+        </table>
     </div>
 </div>
 <div class="footer-area">
