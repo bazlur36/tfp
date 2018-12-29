@@ -152,7 +152,7 @@ if (!empty($_FILES['file'])) {
             }
 
         } else {
-            $message = '<span class="red">Only .csv file format is allowed</span>';
+            $message = '<span class="red">Only .csv, .xls, .xlsx file format are allowed</span>';
         }
 
     } else {

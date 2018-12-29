@@ -8,21 +8,7 @@
 </head>
 <body>
 <div class="header-area">
-    <div class="Fiber_network">
-        <a class="active" href="#"> Home </a>
-    </div>
-    <div class="Home">
-        <a href="sites.php"> Sites </a>
-    </div>
-    <div class="Coverage_2G">
-        <a href="sectors.php"> Sectors </a>
-    </div>
-    <div class="Coverage_3G">
-        <a href="$rows.php"> $rows </a>
-    </div>
-    <div class="Fiber_network">
-        <a href="oss-data.php"> OSS Data </a>
-    </div>
+
 
 
 </div>
@@ -39,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (!empty($_FILES['file'])) {
 
-
         if ($_FILES['file']['error'] == 0) {
 
             // check extension
@@ -53,11 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     if (($handle = fopen($upload_path . '/' . $_FILES['file']['name'], "r")) !== false) {
 
-                        $keys = array();
-                        $out = array();
-
-                        $insert = array();
-
+                        $keys = array(); //store csv file headers
+                        $out = array(); //store csv file data
                         $line = 1;
 
                         while (($row = fgetcsv($handle, 0, ',', '"')) !== FALSE) {
@@ -67,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     $keys[$key] = $value;
                                 } else {
                                     $out[$line][$key] = $value;
-
                                 }
                             }
                             $line++;
@@ -87,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                                 $sql = "select * from sectors where sector = '" . $row[2] . "'";
                                 $data = $conn->query($sql)->fetch_assoc();
+
                                 //print_r(sizeof(sizeof($data)));
                                 if (sizeof($data) > 0) {
                                     $sql = "UPDATE sectors set site = '" . $row[1] . "',
@@ -145,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
 
             } else {
-                $message = '<span class="red">Only .csv file format is allowed</span>';
+                $message = '<span class="red">Only .csv, .xls, .xlsx file format are allowed</span>';
             }
 
         } else {
@@ -157,37 +139,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 //echo $_GET['page'].'.....';
-$lower_limit = ($_GET['page'] - 1) * 10;
+$lower_limit = ($_GET['page'] - 1) * 20;
 $lower_limit = $lower_limit <= 0 ? 0 : $lower_limit;
-/*$upper_limit = $_GET['page'] * 10;
-$upper_limit = $upper_limit <= 0 ? 10 : $upper_limit;*/
+
 $sql_for_all_sectors = "SELECT * from sectors";
 $all_sectors = mysqli_query($conn, $sql_for_all_sectors);
 
-$sql = "SELECT * from sectors order by id  DESC limit " . $lower_limit . ",10";
+$sql = "SELECT * from sectors order by sector  ASC limit " . $lower_limit . ",20";
 //echo $sql;
 $sectors = mysqli_query($conn, $sql);
 
 ?>
-<h1>PSI Planner</h1>
+<h1>Update Master Database</h1>
 <div class="main-area">
 
     <ul class="main-left-navigation">
+        <li>
+            <a class="active" href="master.php">Update Master DB</a>
+        </li>
         <li>
             <a href="neighbor-planning.php">Neighbor Planning</a>
         </li>
         <li>
             <a href="frequency-planning.php">Frequency Planning</a>
         </li>
-        <li>
-            <a href="psc-planning.php">PSC Planning</a>
-        </li>
-        <li>
-            <a href="psi-planning.php">PSI Planning</a>
-        </li>
-        <li>
-            <a class="active" href="master.php">Update Master DB</a>
-        </li>
+
+
+
 
         <li>
             <a href="bsic-planning.php">BSIC Planning</a>
@@ -198,14 +176,8 @@ $sectors = mysqli_query($conn, $sql);
         <form method="post" action="" enctype="multipart/form-data">
             <div class="field"><label>Cells</label><input name="file" type="file"></div>
 
-            <div class="field"><label>Assignment</label>
-                <select>
-                    <option>SSH</option>
-                    <option>Random</option>
-                </select>
-            </div>
             <div class="field">
-                <button class="button" type="submit" value="PLAN">PLAN</button>
+                <button class="button" type="submit" value="PLAN">UPDATE</button>
             </div>
         </form>
         <table cellpadding="5" ; border="1" style="text-align: center">
@@ -214,6 +186,7 @@ $sectors = mysqli_query($conn, $sql);
                 <th>Sector</th>
                 <th>BCCH</th>
                 <th>TCH1</th>
+                <th>BSIC</th>
                 <th>Last Updated</th>
             </tr>
             <?php
@@ -226,6 +199,8 @@ $sectors = mysqli_query($conn, $sql);
                     <td><?php echo $row['sector'] ?></td>
                     <td><?php echo $row['bcch'] ?></td>
                     <td><?php echo $row['tch1'] ?></td>
+                    <td><?php echo $row['bsic'] ?></td>
+
                     <td><?php echo $row['updated_at'] ?></td>
                     </tr>
                     <?php
@@ -236,11 +211,11 @@ $sectors = mysqli_query($conn, $sql);
 
                 <?php
                 $total_items = mysqli_num_rows($all_sectors);
-                $total_pages = intval(mysqli_num_rows($all_sectors) / 10);
+                $total_pages = intval(mysqli_num_rows($all_sectors) / 20);
                 //echo $total_items.'....'.$total_pages;
                 ?>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <?php
                         for ($page = 0; $page <= $total_pages; $page++) {
                             ?>

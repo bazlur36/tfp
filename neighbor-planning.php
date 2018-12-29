@@ -8,21 +8,7 @@
 </head>
 <body>
 <div class="header-area">
-    <div class="Fiber_network">
-        <a class="active" href="#"> Home </a>
-    </div>
-    <div class="Home">
-        <a href="sites.php"> Sites </a>
-    </div>
-    <div class="Coverage_2G">
-        <a href="sectors.php"> Sectors </a>
-    </div>
-    <div class="Coverage_3G">
-        <a href="$rows.php"> $rows </a>
-    </div>
-    <div class="Fiber_network">
-        <a href="oss-data.php"> OSS Data </a>
-    </div>
+
 
 
 </div>
@@ -134,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
             } else {
-                $message = '<span class="red">Only .csv file format is allowed</span>';
+                $message = '<span class="red">Only .csv, .xls, .xlsx file format are allowed</span>';
             }
         } else {
             $message = '<span class="red">There was a problem with your file</span>';
@@ -188,9 +174,7 @@ function bearing($lat1, $long1, $lat2, $long2) {
         <li>
             <a href="frequency-planning.php">Frequency Planning</a>
         </li>
-        <li>
-            <a href="psc-planning.php">PSC Planning</a>
-        </li>
+
         <li>
             <a  href="psi-planning.php">PSI Planning</a>
         </li>

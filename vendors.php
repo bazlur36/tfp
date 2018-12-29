@@ -36,12 +36,8 @@
         <li>
             <a href="frequency-planning.php">Frequency Planning</a>
         </li>
+
         <li>
-            <a href="psc-planning.php">PSC Planning</a>
-        </li>
-        <li>
-            <a href="psi-planning.php">PSI Planning</a>
-        </li><li>
             <a href="bsic-planning.php">BSIC Planning</a>
         </li>
     </ul>
