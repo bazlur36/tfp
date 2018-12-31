@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$lower_limit = ($_GET['page'] - 1) * 21;
+$lower_limit = isset($_GET['page']) ? ($_GET['page'] - 1) * 21 : 0;
 $lower_limit = $lower_limit <= 0 ? 0 : $lower_limit;
 
 $sql_for_all_neighbors = "SELECT * from neighbors";

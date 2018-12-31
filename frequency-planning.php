@@ -124,9 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             //echo $cost_for_neighbor;
                                         }
                                         $cost[$freq] = $cost[$freq]+$cost_for_neighbor;
-                                        echo '<pre>';
+                                        /*echo '<pre>';
                                         print_r($cost[$freq]);
-                                        echo '</pre>';
+                                        echo '</pre>';*/
                                     }
 
 
@@ -268,17 +268,14 @@ function bearing($lat1, $long1, $lat2, $long2) {
 
     <ul class="main-left-navigation">
         <li>
+            <a href="master.php">Update Master DB</a>
+        </li>
+        <li>
             <a href="neighbor-planning.php">Neighbor Planning</a>
         </li>
         <li>
             <a class="active"  href="frequency-planning.php">Frequency Planning</a>
         </li>
-
-
-        <li>
-            <a href="master.php">Update Master DB</a>
-        </li>
-
         <li>
             <a href="bsic-planning.php">BSIC Planning</a>
         </li>

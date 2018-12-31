@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 //echo $_GET['page'].'.....';
-$lower_limit = ($_GET['page'] - 1) * 21;
+$lower_limit = isset($_GET['page']) ? ($_GET['page'] - 1) * 21 : 0;
 $lower_limit = $lower_limit <= 0 ? 0 : $lower_limit;
 
 $sql_for_all_sectors = "SELECT * from sectors";
@@ -163,10 +163,6 @@ $sectors = mysqli_query($conn, $sql);
         <li>
             <a href="frequency-planning.php">Frequency Planning</a>
         </li>
-
-
-
-
         <li>
             <a href="bsic-planning.php">BSIC Planning</a>
         </li>
