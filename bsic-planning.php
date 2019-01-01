@@ -33,14 +33,63 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $count = 0;
         while ($row = mysqli_fetch_assoc($all_sectors)) {
             $bsic = decoct($count % 64);
-            //die($bsic);
-            $sql = "UPDATE sectors SET bsic = ".$bsic.", `updated_at` = '".date("Y-m-d H:i:s")."' WHERE sector = '".$row['sector']."'";
-            if ($conn->query($sql) === TRUE) {
-                // echo "Record Updated successfully";
-            } else {
-                echo "Error: " . $sql . "<br>" . $conn->error;
+            if($count < 64) {
+                //die($bsic);
+                $sql = "UPDATE sectors SET bsic = " . $bsic . ", `updated_at` = '" . date("Y-m-d H:i:s") . "' WHERE sector = '" . $row['sector'] . "'";
+                if ($conn->query($sql) === TRUE) {
+                    // echo "Record Updated successfully";
+                } else {
+                    echo "Error: " . $sql . "<br>" . $conn->error;
+                }
+
+                $sql = "UPDATE neighbors SET bsic = " . $bsic . ", `updated_at` = '" . date("Y-m-d H:i:s") . "' WHERE serving_cell = '" . $row['sector'] . "'";
+                if ($conn->query($sql) === TRUE) {
+                    // echo "Record Updated successfully";
+                } else {
+                    echo "Error: " . $sql . "<br>" . $conn->error;
+                }
+
             }
-            echo $bsic;
+            else {
+                //echo $bsic;
+                $sql = "select * from neighbors where serving_cell = '" . $row['sector'] . "' order by distance ASC limit 1,50";
+               // echo $sql;
+                $result = mysqli_query($conn, $sql);
+                //print_r(mysqli_num_rows($result)) ;
+
+                if (mysqli_num_rows($result) > 0) {
+                    $index = 1;
+                    $sectors = array();
+                    $same_bsic_nearby = 0;
+                    while ($neighbor_sector = mysqli_fetch_assoc($result)) {
+                        if($same_bsic_nearby != 1) {
+                            if ($neighbor_sector['bsic'] != $bsic) {
+                                $same_bsic_nearby = 0;
+                            } else {
+                                $same_bsic_nearby = 1;
+                            }
+                        }
+                    }
+                    if($same_bsic_nearby == 0) {
+                        $sql = "UPDATE sectors SET bsic = " . $bsic . ", `updated_at` = '" . date("Y-m-d H:i:s") . "' WHERE sector = '" . $row['sector'] . "'";
+                        if ($conn->query($sql) === TRUE) {
+                            // echo "Record Updated successfully";
+                        } else {
+                            echo "Error: " . $sql . "<br>" . $conn->error;
+                        }
+
+                        $sql = "UPDATE neighbors SET bsic = " . $bsic . ", `updated_at` = '" . date("Y-m-d H:i:s") . "' WHERE serving_cell = '" . $row['sector'] . "'";
+                        if ($conn->query($sql) === TRUE) {
+                            // echo "Record Updated successfully";
+                        } else {
+                            echo "Error: " . $sql . "<br>" . $conn->error;
+                        }
+                    }
+                }
+
+
+            }
+            //echo $bsic;
             $count++;
         }
     } else {

@@ -150,7 +150,13 @@ function bearing($lat1, $long1, $lat2, $long2) {
 
     $dlong= $long1-$long2;
     $dlat=$lat1-$lat2;
-    $primary_angle = atan($dlong/$dlat)*180/3.14;
+    if($dlat==0)
+    {
+        $primary_angle = 90;
+    }
+    else {
+        $primary_angle = atan($dlong / $dlat) * 180 / 3.14;
+    }
     if ($primary_angle < 0 && $dlat < 0){
         $final_angle = $primary_angle + 360;
     }
@@ -198,6 +204,7 @@ function bearing($lat1, $long1, $lat2, $long2) {
                 <th>Distance</th>
                 <th>Angle</th>
                 <th>Relative Angle</th>
+                <th>BSIC</th>
                 <th>Last Updated</th>
             </tr>
             <?php
@@ -212,6 +219,7 @@ function bearing($lat1, $long1, $lat2, $long2) {
                         <td><?php echo $row['distance'] ?></td>
                         <td><?php echo $row['angle'] ?></td>
                         <td><?php echo $row['relative_angle'] ?></td>
+                        <td><?php echo $row['bsic'] ?></td>
                         <td><?php echo $row['updated_at'] ?></td>
                     </tr>
                     <?php
@@ -227,7 +235,7 @@ function bearing($lat1, $long1, $lat2, $long2) {
                 //echo $total_items.'....'.$total_pages;
                 ?>
                 <tr>
-                    <td colspan="7">
+                    <td colspan="8">
                         <?php
                         for ($page = 0; $page <= $total_pages; $page++) {
                             ?>

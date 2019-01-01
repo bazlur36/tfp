@@ -86,10 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     }
                                 }
                                 asort($sectors);
-                               /* echo '<pre>';
-                                print_r($sectors);
-                                echo '</pre>';
-                                die();*/
+                                /* echo '<pre>';
+                                 print_r($sectors);
+                                 echo '</pre>';
+                                 die();*/
 
                                 //$base_sector['neighbors'] = $sectors;
                                 $cost = array();
@@ -104,13 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                                         if((($neighbor['neighbor_bcch']==$freq) || ($neighbor['neighbor_tch1']==$freq)) && ($neighbor['distance'] == 0)) {
                                             $cost_for_neighbor=100000;
-                                           // echo '100000';
+                                            // echo '100000';
                                         }
                                         elseif((($neighbor['neighbor_bcch']+1 == $freq) || ($neighbor['neighbor_bcch']-1 == $freq)|| ($neighbor['neighbor_tch1']+1 == $freq)|| ($neighbor['neighbor_tch1']-1 == $freq)) && $neighbor['distance'] == 0) {
-                                             $cost_for_neighbor=50000;
+                                            $cost_for_neighbor=50000;
                                             //echo '50000';
-                                         }
-                                        elseif((($neighbor['neighbor_bcch'] == $freq) || ($neighbor['neighbor_tch1']) && ($neighbor['distance'] > 0)))
+                                        }
+                                        elseif((($neighbor['neighbor_bcch'] == $freq) || ($neighbor['neighbor_tch1']==$freq) && ($neighbor['distance'] > 0)))
                                         {
                                             if ($neighbor['group'] == 1) {
                                                 $cost_for_neighbor= (500/$neighbor['distance']);
@@ -149,12 +149,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 $second_key = $keys[1];
                                 $third_key = $keys[2];
 
-                                if($second_key==$first_key+1) {
+                                if(abs($second_key-$first_key)==1)
+                                {
                                     $tch1_frequency = $third_key;
                                 }
                                 else {
                                     $tch1_frequency = $second_key;
                                 }
+
                                 /*echo '<pre>';
                                 print_r($third_key);
                                 echo '</pre>';*/
@@ -181,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 print_r($base_sector);
                                 echo '</pre>';
                                 echo '...........................<br>';*/
-                               // die();
+                                // die();
                             }
 
 
@@ -207,7 +209,7 @@ $current_neighbors = mysqli_query($conn, $sql);
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    if($_GET["_method"]=='put') {
+    if(isset($_GET["_method"]) && $_GET["_method"]=='put') {
         $sql = "SELECT distinct(serving_cell), serving_bcch, serving_tch1 from  neighbors  order by serving_cell ASC";
         $current_neighbors = mysqli_query($conn, $sql);
 
@@ -215,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             while($row = mysqli_fetch_assoc($current_neighbors)) {
                 $sql = "UPDATE sectors SET bcch = '".$row['serving_bcch']."', tch1 = '".$row['serving_tch1']."', `updated_at` = '".date("Y-m-d H:i:s")."' WHERE sector = '".$row['serving_cell']."'";
                 if ($conn->query($sql) === TRUE) {
-                   // echo "Record Updated successfully";
+                    // echo "Record Updated successfully";
                 } else {
                     echo "Error: " . $sql . "<br>" . $conn->error;
                 }
@@ -299,8 +301,8 @@ function bearing($lat1, $long1, $lat2, $long2) {
             <tr>
                 <th>Serial</th>
                 <th>Serving Cell</th>
-                <th>TCH1</th>
                 <th>BCCH</th>
+                <th>TCH1</th>
             </tr>
             <?php
             if (mysqli_num_rows($current_neighbors) > 0) {
