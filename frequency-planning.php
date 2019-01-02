@@ -113,13 +113,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         elseif((($neighbor['neighbor_bcch'] == $freq) || ($neighbor['neighbor_tch1']==$freq) && ($neighbor['distance'] > 0)))
                                         {
                                             if ($neighbor['group'] == 1) {
-                                                $cost_for_neighbor= (500/$neighbor['distance']);
+                                                $cost_for_neighbor= (50000/$neighbor['distance']);
                                             }
                                             elseif ($neighbor['group'] == 2) {
-                                                $cost_for_neighbor = (300/$neighbor['distance']);
+                                                $cost_for_neighbor = (30000/$neighbor['distance']);
                                             }
                                             else {
-                                                $cost_for_neighbor = (200/$neighbor['distance']);
+                                                $cost_for_neighbor = (20000/$neighbor['distance']);
                                             }
                                             //echo $cost_for_neighbor;
                                         }
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                                 reset($cost);
                                 $first_key = key($cost);
-                                $lowest_costs = array_slice($cost, 0, 3,true);
+                                $lowest_costs = array_slice($cost, 0, 4,true);
                                 /*echo '<pre>';
                                 print_r($lowest_costs);
                                 echo '</pre>';*/
@@ -148,10 +148,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 $keys = array_keys($lowest_costs);
                                 $second_key = $keys[1];
                                 $third_key = $keys[2];
+                                $fourth_key = $keys[3];
 
                                 if(abs($second_key-$first_key)==1)
                                 {
-                                    $tch1_frequency = $third_key;
+                                    if(abs($third_key-$first_key)==1)
+                                    {
+                                        $tch1_frequency = $fourth_key;
+                                    }
+                                    else {
+                                        $tch1_frequency = $third_key;
+                                    }
                                 }
                                 else {
                                     $tch1_frequency = $second_key;

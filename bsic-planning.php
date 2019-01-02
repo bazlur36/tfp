@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (mysqli_num_rows($all_sectors) > 0) {
         $count = 0;
         while ($row = mysqli_fetch_assoc($all_sectors)) {
+
             $bsic = decoct($count % 64);
             if($count < 64) {
                 //die($bsic);
@@ -83,6 +84,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             // echo "Record Updated successfully";
                         } else {
                             echo "Error: " . $sql . "<br>" . $conn->error;
+                        }
+                    }
+                    else {
+                        $sql = "select * from neighbors where serving_cell = '" . $row['sector'] . "' order by distance DESC limit 1,1";
+                        // echo $sql;
+                        $result = mysqli_query($conn, $sql);
+                        //print_r(mysqli_num_rows($result)) ;
+
+                        if (mysqli_num_rows($result) > 0) {
+                            $index = 1;
+                            $sectors = array();
+                            $same_bsic_nearby = 0;
+                            while ($remote_neighbor_sector = mysqli_fetch_assoc($result)) {
+                                $sql = "UPDATE sectors SET bsic = " . $remote_neighbor_sector['bsic'] . ", `updated_at` = '" . date("Y-m-d H:i:s") . "' WHERE sector = '" . $row['sector'] . "'";
+                                if ($conn->query($sql) === TRUE) {
+                                    // echo "Record Updated successfully";
+                                } else {
+                                    echo "Error: " . $sql . "<br>" . $conn->error;
+                                }
+
+                                $sql = "UPDATE neighbors SET bsic = " . $remote_neighbor_sector['bsic'] . ", `updated_at` = '" . date("Y-m-d H:i:s") . "' WHERE serving_cell = '" . $row['sector'] . "'";
+                                if ($conn->query($sql) === TRUE) {
+                                    // echo "Record Updated successfully";
+                                } else {
+                                    echo "Error: " . $sql . "<br>" . $conn->error;
+                                }
+                            }
                         }
                     }
                 }
